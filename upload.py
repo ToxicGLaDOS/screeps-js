@@ -7,7 +7,7 @@ import os
 
 def main():
     modules = {}
-    branch = "dev-sim"
+    branch = ""
     config = None
     url = "https://screeps.com/api/user/code"
     headers = {}

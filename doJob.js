@@ -86,6 +86,10 @@ function doFill(creep){
 
             if(target.structureType != STRUCTURE_CONTAINER && nonEmptyContainers.length > 0){
                 var container = creep.pos.findClosestByPath(nonEmptyContainers);
+                // TODO: Make this not hacky
+                if(!container){
+                    container = nonEmptyContainers[0];
+                }
                 creep.memory.subtask = {
                     action: "withdraw",
                     target: container.id
@@ -163,6 +167,10 @@ function doUpgrade(creep){
 
             if(target.structureType != STRUCTURE_CONTAINER && nonEmptyContainers.length > 0){
                 var container = creep.pos.findClosestByPath(nonEmptyContainers);
+                // TODO: Make this not hacky
+                if(!container){
+                    container = nonEmptyContainers[0];
+                }
                 creep.memory.subtask = {
                     action: "withdraw",
                     target: container.id
@@ -237,6 +245,10 @@ function doRepair(creep){
 
             if(target.structureType != STRUCTURE_CONTAINER && nonEmptyContainers.length > 0){
                 var container = creep.pos.findClosestByPath(nonEmptyContainers);
+                // TODO: Make this not hacky
+                if(!container){
+                    container = nonEmptyContainers[0];
+                }
                 creep.memory.subtask = {
                     action: "withdraw",
                     target: container.id
@@ -268,9 +280,14 @@ function doRepair(creep){
             creep.moveTo(target);
         }
         else if(err == ERR_NOT_ENOUGH_RESOURCES){
-            creep.memory.subtask = null;
-            doRepair(creep);
-            return;
+            if(target.structureType == STRUCTURE_WALL && target.hits > 10000){
+                finishTask(creep);
+            }
+            else{
+                creep.memory.subtask = null;
+                doRepair(creep);
+                return;
+            }
         }
     }
     else if(creep.memory.subtask.action == "withdraw"){
@@ -297,6 +314,55 @@ function doRepair(creep){
     }
 }
 
+function doDefend(creep){
+    var enemies = creep.room.find(FIND_HOSTILE_CREEPS);
+    if(enemies.length > 0){
+        // TODO: Better target selection?
+        var target = enemies[0];
+        var err = creep.attack(target);
+        if(err == ERR_NOT_IN_RANGE){
+            creep.moveTo(target);
+        }
+    }
+}
+
+function doAttack(creep){
+    var moveFlag = Game.flags["move"];
+    var attackFlag = Game.flags["attack"];
+
+    if(attackFlag){
+        if(attackFlag.room == creep.room){
+            var target = creep.room.lookForAt(LOOK_STRUCTURES, attackFlag.pos)[0];
+            var err = creep.attack(target);
+            if(err == ERR_NOT_IN_RANGE){
+                creep.moveTo(target);
+            }
+        }
+        else{
+            creep.moveTo(attackFlag);
+        }
+    }
+    else if(moveFlag){
+        creep.moveTo(moveFlag);
+    }
+}
+
+function doClaim(creep){
+    var claim_flag = Game.flags["claim"];
+
+    if(claim_flag){
+        if(claim_flag.room == creep.room){
+            var err = creep.claimController(creep.room.controller);
+            if(err == ERR_NOT_IN_RANGE){
+                creep.moveTo(creep.room.controller);
+            }
+        }
+        else{
+            creep.moveTo(claim_flag);
+        }
+    }
+}
+
 function doJob(creep){
     if(creep.memory.task != null){
         switch(creep.memory.task.action){
@@ -312,8 +378,17 @@ function doJob(creep){
             case "repair":
                 doRepair(creep);
                 break;
+            case "defend":
+                doDefend(creep);
+                break;
+            case "attack":
+                doAttack(creep);
+                break;
+            case "claim":
+                doClaim(creep);
+                break;
             default:
-                console.log(`Unimplemented job on creep ${creep.name}: "${creep.memory.task}"`)
+                console.log(`Unimplemented job on creep ${creep.name}: "${creep.memory.task.action}"`)
         }
     }
 }

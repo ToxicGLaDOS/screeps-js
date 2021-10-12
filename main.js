@@ -17,4 +17,10 @@ module.exports.loop = function () {
     for (const [name, creep] of Object.entries(Game.creeps)){
         doJob(creep);
     }
+
+    for(var i in Memory.creeps) {
+        if(!Game.creeps[i]) {
+            delete Memory.creeps[i];
+        }
+    }
 }
