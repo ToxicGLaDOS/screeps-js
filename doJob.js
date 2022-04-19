@@ -18,6 +18,25 @@ function doHarvestSubTask(creep){
     return false;
 }
 
+function getBestSource(creep) {
+    var closest_reachable = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    if (closest_reachable) {
+        return closest_reachable;
+    }
+
+    var valid_sources = [];
+    for (var room_name in Game.rooms) {
+        // If it's a different room than the one we're in and I own it
+        var room = Game.rooms[room_name];
+        if (room_name != creep.room.name && room.controller && room.controller.my) {
+            valid_sources = valid_sources.concat(room.find(FIND_SOURCES));
+        }
+    }
+
+    // Choose one at random
+    var index = Math.floor(Math.random(valid_sources.length))
+    return valid_sources[index];
+}
 
 function doBuild(creep){
     if(creep.memory.subtask == null){
@@ -29,7 +48,7 @@ function doBuild(creep){
             }
         }
         else{
-            var source = creep.pos.findClosestByPath(FIND_SOURCES);
+            var source = getBestSource(creep)
             if(source){
                 creep.memory.subtask = {
                     action: "harvest",
@@ -96,7 +115,7 @@ function doFill(creep){
                 }
             }
             else{
-                var source = creep.pos.findClosestByPath(FIND_SOURCES);
+                var source = getBestSource(creep);
                 if(source){
                     creep.memory.subtask = {
                         action: "harvest",
@@ -177,7 +196,7 @@ function doUpgrade(creep){
                 }
             }
             else{
-                var source = creep.pos.findClosestByPath(FIND_SOURCES);
+                var source = getBestSource(creep);
                 if(source){
                     creep.memory.subtask = {
                         action: "harvest",
@@ -255,7 +274,7 @@ function doRepair(creep){
                 }
             }
             else{
-                var source = creep.pos.findClosestByPath(FIND_SOURCES);
+                var source = getBestSource(creep);
                 if(source){
                     creep.memory.subtask = {
                         action: "harvest",
