@@ -5,7 +5,8 @@ var assignJobs = require('assignJobs.js')
 var doJob = require('doJob.js')
 
 module.exports.loop = function () {
-    if(Game.cpu.bucket == 10000) {
+    // In private servers there is no generatePixel function, so we check for that
+    if(Game.cpu.bucket == 10000 && typeof Game.cpu.generatePixel == 'function') {
         Game.cpu.generatePixel();
     }
 
