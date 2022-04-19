@@ -1,12 +1,7 @@
 var _ = require('lodash');
 
 function hasRequiredParts(creep, requiredParts){
-    requiredParts.forEach((part) => {
-        if(!creep.getActiveBodyparts(part)){
-            return false;
-        }
-    })
-    return true;
+    return _.every(requiredParts, (part, _index, _collection) => creep.getActiveBodyparts(part));
 }
 
 function getJobFitness(creep, job){
