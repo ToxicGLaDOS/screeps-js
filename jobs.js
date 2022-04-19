@@ -224,11 +224,24 @@ function getJobs(){
     jobs = _.sortBy(jobs, "priority");
     
     var roomVisual = new RoomVisual();
-    for (var i = 0; i < Math.min(20, jobs.length); i++){
-        var job = jobs[i];
-        var text = `Task: ${job.task}, Target: ${job.target.id}, Room: ${job.target.room.name}, Priority: ${job.priority}`
 
-        roomVisual.text(text, 0, i/2, {color: '#FF0000', font: 0.5, align: "left"});
+    // In a try-catch because rendering this debug text should never cause us to halt
+    try {
+        for (var i = 0; i < Math.min(20, jobs.length); i++){
+            var job = jobs[i];
+            var text;
+            if (job.target.hasOwnProperty('name')){
+                text = `Task: ${job.task}, Target: ${job.target.name}, Room: ${job.target.room.name}, Priority: ${job.priority}`
+            }
+            else {
+                text = `Task: ${job.task}, Target: ${job.target.id}, Room: ${job.target.room.name}, Priority: ${job.priority}`
+            }
+
+            roomVisual.text(text, 0, i/2, {color: '#FF0000', font: 0.5, align: "left"});
+        }
+    }
+    catch (error){
+        roomVisual.text(`Error: ${error.stack}`, 0, i/2, {color: '#FF0000', font: 0.5, align: "left"});
     }
 
     return jobs
