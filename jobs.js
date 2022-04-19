@@ -211,6 +211,21 @@ function getJobs(){
             })
         }
 
+
+        var enemies = room.find(FIND_HOSTILE_CREEPS);
+        if (enemies.length > 0) {
+            enemies.forEach((enemy) => {
+                if(!isJobAssigned("defend", enemy)){
+                    jobs.push({
+                        target:enemy,
+                        task:"defend",
+                        requiredParts: [MOVE, ATTACK],
+                        priority: 8
+                    });
+                }
+            });
+        }
+
         if (Game.flags["claim"]) {
             jobs.push({
                 target:Game.flags["claim"],

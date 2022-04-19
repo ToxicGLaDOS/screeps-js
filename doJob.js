@@ -334,13 +334,16 @@ function doRepair(creep){
 }
 
 function doDefend(creep){
-    var enemies = creep.room.find(FIND_HOSTILE_CREEPS);
-    if(enemies.length > 0){
-        // TODO: Better target selection?
-        var target = enemies[0];
-        var err = creep.attack(target);
-        if(err == ERR_NOT_IN_RANGE){
-            creep.moveTo(target);
+    for (var room_name in Game.rooms) {
+        var room = Game.rooms[room_name];
+        var enemies = room.find(FIND_HOSTILE_CREEPS);
+        if(enemies.length > 0){
+            // TODO: Better target selection?
+            var target = enemies[0];
+            var err = creep.attack(target);
+            if(err == ERR_NOT_IN_RANGE){
+                creep.moveTo(target);
+            }
         }
     }
 }
