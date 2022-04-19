@@ -1,3 +1,4 @@
+var construct = require('construct.js')
 var spawn = require('spawn.js')
 var getJobs = require('jobs.js')
 var assignJobs = require('assignJobs.js')
@@ -7,6 +8,8 @@ module.exports.loop = function () {
     if(Game.cpu.bucket == 10000) {
         Game.cpu.generatePixel();
     }
+
+    construct()
     
     spawn()
 
