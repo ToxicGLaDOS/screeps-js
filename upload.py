@@ -3,17 +3,18 @@ import json
 import requests
 from argparse import ArgumentParser
 import os
+import yaml
 
 
 def main():
     modules = {}
     branch = ""
     config = None
-    url = "https://screeps.com/api/user/code"
+    offical_url = "https://screeps.com"
     headers = {}
 
-    with open('config.json', 'r') as config_json:
-        config = json.loads(config_json.read())
+    with open('config.yml', 'r') as file:
+        config = yaml.safe_load(file)
 
     for module_name in os.listdir('.'):
         if module_name.endswith('.js'):
@@ -23,16 +24,27 @@ def main():
                     module_name = 'main'
                 modules[module_name] = module.read()
 
+    path = ''
+    if config['ptr'] == True:
+        path = "/ptr/api/user/code"
+    else:
+        path = "/api/user/code"
     branch = config["branch"]
-    headers['X-Token'] = config["token"].encode('utf-8')
     headers['Content-Type'] = "application/json; charset=utf-8"
-
     data = {
             "branch": branch,
             "modules": modules
             }
+    url = config['host'] + path
 
-    resp = requests.post(url, data=json.dumps(data), headers=headers)
+    if url.startswith(offical_url):
+        headers['X-Token'] = config["token"].encode('utf-8')
+        resp = requests.post(url, data=json.dumps(data), headers=headers)
+    else:
+        username = config['username']
+        password = config['password']
+        resp = requests.post(url, data=json.dumps(data), headers=headers, auth=(username, password))
+
     print(resp.text)
 
 if __name__ == "__main__":
