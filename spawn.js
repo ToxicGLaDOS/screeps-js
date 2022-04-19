@@ -10,12 +10,6 @@ function spawn() {
         var spawner = Game.spawns[spawner_name];
         var room = spawner.room;
 
-        var adjacent_creeps = spawner.pos.findInRange(FIND_MY_CREEPS, 1);
-        if (adjacent_creeps.length > 0) {
-            var creep = adjacent_creeps[0];
-            var err = spawner.renewCreep(creep);
-        }
-
         if(Object.keys(Game.creeps).length < 3){
             var err = spawner.spawnCreep([MOVE, WORK, CARRY], "C" + parseInt(Math.floor(Math.random() * 10000)));
         }
@@ -38,6 +32,12 @@ function spawn() {
             }
 
             var err = spawner.spawnCreep(body, "C" + parseInt(Math.floor(Math.random() * 10000)));
+        }
+
+        var adjacent_creeps = spawner.pos.findInRange(FIND_MY_CREEPS, 1);
+        if (adjacent_creeps.length > 0) {
+            var creep = adjacent_creeps[0];
+            var err = spawner.renewCreep(creep);
         }
     }
 }
