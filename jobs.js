@@ -120,10 +120,10 @@ function getJobs(){
             })
         }
 
-        max_workers_per_site = 2
+        var max_workers_per_site = 2
         construction_sites.forEach((construction_site) => {
-            screeps_assigned = jobAssignedCount("build", construction_site);
-            num_jobs_to_be_assigned = Math.max(max_workers_per_site - screeps_assigned, 0);
+            var screeps_assigned = jobAssignedCount("build", construction_site);
+            var num_jobs_to_be_assigned = Math.max(max_workers_per_site - screeps_assigned, 0);
 
             for (var i = num_jobs_to_be_assigned; i > 0; i--) {
                 jobs.push({
