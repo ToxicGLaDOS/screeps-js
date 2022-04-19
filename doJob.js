@@ -356,6 +356,9 @@ function doClaim(creep){
             if(err == ERR_NOT_IN_RANGE){
                 creep.moveTo(creep.room.controller);
             }
+            if(creep.room.controller.my) {
+               claim_flag.remove()
+            }
         }
         else{
             creep.moveTo(claim_flag);
