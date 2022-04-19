@@ -210,6 +210,15 @@ function getJobs(){
                 priority: 7
             })
         }
+
+        if (Game.flags["claim"]) {
+            jobs.push({
+                target:Game.flags["claim"],
+                task:"claim",
+                requiredParts: [MOVE, CLAIM],
+                priority: 20
+            })
+        }
     }
 
     jobs = _.sortBy(jobs, "priority");
