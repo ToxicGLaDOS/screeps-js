@@ -63,8 +63,8 @@ function groupContainers(o){
 function sortContainers(o){
     // Lower is higher priority
     var priority = {
-        [STRUCTURE_SPAWN]: 0,
-        [STRUCTURE_EXTENSION]: 1,
+        [STRUCTURE_EXTENSION]: 0,
+        [STRUCTURE_SPAWN]: 1,
         [STRUCTURE_CONTAINER]: 2
     }
     
