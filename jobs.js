@@ -12,6 +12,18 @@ function isJobAssigned(task_name, target){
     return false;
 }
 
+function jobAssignedCount(task_name, target) {
+    var count = 0
+    for (const [_, creep] of Object.entries(Game.creeps)){
+        if(creep.memory.task != null){
+            if(creep.memory.task.action == task_name && creep.memory.task.target == target.id){
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
 function groupRepariables(o){
     var ratio_health_remaining = o.hits / o.hitsMax;
     if(o.structureType == STRUCTURE_WALL){
@@ -108,13 +120,17 @@ function getJobs(){
             })
         }
 
+        max_workers_per_site = 2
         construction_sites.forEach((construction_site) => {
-            if (!isJobAssigned("build", construction_site)){
+            screeps_assigned = jobAssignedCount("build", construction_site);
+            num_jobs_to_be_assigned = Math.max(max_workers_per_site - screeps_assigned, 0);
+
+            for (var i = num_jobs_to_be_assigned; i > 0; i--) {
                 jobs.push({
                     target:construction_site,
                     task:"build",
                     requiredParts: [MOVE, CARRY, WORK],
-                    priority: 1
+                    priority: max_workers_per_site - i + 1
                 })
             }
         })
