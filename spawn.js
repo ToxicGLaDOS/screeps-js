@@ -10,7 +10,11 @@ function spawn() {
         var spawner = Game.spawns[spawner_name];
         var room = spawner.room;
 
-        if(Object.keys(Game.creeps).length < 3){
+        var enemies = room.find(FIND_HOSTILE_CREEPS);
+        if(enemies.length > 0){
+            var err = spawner.spawnCreep([MOVE, MOVE, ATTACK, ATTACK], "C" + parseInt(Math.floor(Math.random() * 10000)));
+        }
+        else if(Object.keys(Game.creeps).length < 3){
             var err = spawner.spawnCreep([MOVE, WORK, CARRY], "C" + parseInt(Math.floor(Math.random() * 10000)));
         }
         else if(Object.keys(Game.creeps).length < 13){
