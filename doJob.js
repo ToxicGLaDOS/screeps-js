@@ -293,6 +293,7 @@ function doRepair(creep){
     if(creep.memory.subtask.action == "repair"){
         if(target.hits == target.hitsMax){
             finishTask(creep);
+            return;
         }
         var err = creep.repair(target);
         if(err == ERR_NOT_IN_RANGE){
@@ -301,6 +302,7 @@ function doRepair(creep){
         else if(err == ERR_NOT_ENOUGH_RESOURCES){
             if(target.structureType == STRUCTURE_WALL && target.hits > 10000){
                 finishTask(creep);
+                return;
             }
             else{
                 creep.memory.subtask = null;
