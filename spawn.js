@@ -17,7 +17,7 @@ function spawn() {
         else if(Object.keys(Game.creeps).length < 3){
             var err = spawner.spawnCreep([MOVE, WORK, CARRY], "C" + parseInt(Math.floor(Math.random() * 10000)));
         }
-        else if(Object.keys(Game.creeps).length < 13){
+        else if(Object.keys(Game.creeps).length < 18){
             var body = [];
             var energyCapacity = room.energyCapacityAvailable
 
