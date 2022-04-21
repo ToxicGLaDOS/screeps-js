@@ -53,7 +53,8 @@ function groupContainers(o){
     var grouping = {
         [STRUCTURE_SPAWN]: 0,
         [STRUCTURE_EXTENSION]: 0,
-        [STRUCTURE_CONTAINER]: 1
+        [STRUCTURE_CONTAINER]: 1,
+        [STRUCTURE_TOWER]: 1
     }
 
     return grouping[o.structureType];
