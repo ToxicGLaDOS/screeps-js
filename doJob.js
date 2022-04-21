@@ -15,6 +15,15 @@ function doHarvestSubTask(creep){
     if(err == ERR_NOT_IN_RANGE){
         creep.moveTo(target);
     }
+    else if (err == ERR_NOT_ENOUGH_RESOURCES) {
+        var source = getBestSource(creep)
+        if(source){
+            creep.memory.subtask = {
+                action: "harvest",
+                target: source.id
+            }
+        }
+    }
     return false;
 }
 
