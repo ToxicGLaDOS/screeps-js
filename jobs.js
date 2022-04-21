@@ -72,6 +72,11 @@ function sortContainers(o){
     return priority[o.structureType];
 }
 
+function sortRooms(room){
+    // Sorts lowest level room first
+    return room.controller.level;
+}
+
 function getJobs(){
     // My construction sites
     var construction_sites = [];
@@ -103,9 +108,10 @@ function getJobs(){
     var grouped_repairables = _.groupBy(repairables, groupRepariables);
     var grouped_containers = _.groupBy(containers, groupContainers);
     var jobs = []
+    var sorted_rooms = _.sortBy(Game.rooms, sortRooms);
 
-    for (const room_name in Game.rooms){
-        var room = Game.rooms[room_name];
+    for (const room of sorted_rooms){
+        room_name = room.name;
 
         // High priority containers
         if(grouped_containers[0] != null){
