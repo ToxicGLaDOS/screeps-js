@@ -3,6 +3,7 @@ var spawn = require('spawn.js')
 var getJobs = require('jobs.js')
 var assignJobs = require('assignJobs.js')
 var doJob = require('doJob.js')
+var tower = require('tower.js')
 
 module.exports.loop = function () {
     // In private servers there is no generatePixel function, so we check for that
@@ -21,6 +22,8 @@ module.exports.loop = function () {
     for (const [name, creep] of Object.entries(Game.creeps)){
         doJob(creep);
     }
+
+    tower();
 
     for(var i in Memory.creeps) {
         if(!Game.creeps[i]) {

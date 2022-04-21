@@ -156,7 +156,7 @@ function getJobs(){
             })
         }
 
-        if (!isJobAssigned("upgrade", room.controller)){
+        if (!isJobAssigned("upgrade", room.controller) && room.controller.my){
             jobs.push({
                 target:room.controller,
                 task:"upgrade",
@@ -210,12 +210,14 @@ function getJobs(){
         // Add a bunch of upgrades as a default
         // TODO: Make this less hacky
         for(var i = 0; i < 12; i++){
-            jobs.push({
-                target:room.controller,
-                task:"upgrade",
-                requiredParts: [MOVE, CARRY],
-                priority: 7
-            })
+            if (room.controller.my) {
+                jobs.push({
+                    target:room.controller,
+                    task:"upgrade",
+                    requiredParts: [MOVE, CARRY],
+                    priority: 7
+                })
+            }
         }
 
 
