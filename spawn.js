@@ -6,6 +6,22 @@ function isClaimer(creep, _index, _collection) {
 }
 
 function spawn() {
+    // Found experimentally
+    var HARVEST_PARTS_PER_SOURCE = 33;
+    var num_sources = 0;
+    for (var room_name in Game.rooms){
+        var room = Game.rooms[room_name];
+        num_sources += room.find(FIND_SOURCES).length;
+    }
+    var harvest_parts_wanted = num_sources * HARVEST_PARTS_PER_SOURCE;
+    var num_harvest_parts = 0;
+    for (var creep_name in Game.creeps){
+        var creep = Game.creeps[creep_name];
+        var works = creep.body.filter(x => x.type === WORK);
+
+        num_harvest_parts += works.length;
+    }
+
     for (var spawner_name in Game.spawns) {
         var spawner = Game.spawns[spawner_name];
         var room = spawner.room;
@@ -35,7 +51,7 @@ function spawn() {
         else if(Object.keys(Game.creeps).length < 3){
             var err = spawner.spawnCreep([MOVE, WORK, CARRY], "C" + parseInt(Math.floor(Math.random() * 10000)));
         }
-        else if(Object.keys(Game.creeps).length < 18){
+        else if(num_harvest_parts < harvest_parts_wanted){
             var body = [];
 
             if (Game.flags["claim"] != null && energyCapacity > BODYPART_COST["claim"] + BODYPART_COST["move"]) {
@@ -45,7 +61,7 @@ function spawn() {
                 }
             }
             else {
-                for(var i = 0; i < Math.floor(energyCapacity / 200); i++){
+                for(var i = 0; i < Math.floor(energyCapacity / (BODYPART_COST[MOVE] + BODYPART_COST[CARRY] + BODYPART_COST[WORK])); i++){
                     body.push(MOVE);
                     body.push(CARRY);
                     body.push(WORK);
