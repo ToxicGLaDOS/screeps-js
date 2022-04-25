@@ -64,8 +64,8 @@ function groupContainers(o){
 function sortContainers(o){
     // Lower is higher priority
     var priority = {
-        [STRUCTURE_EXTENSION]: 0,
-        [STRUCTURE_SPAWN]: 1,
+        [STRUCTURE_SPAWN]: 0,
+        [STRUCTURE_EXTENSION]: 1,
         [STRUCTURE_CONTAINER]: 2
     }
     
@@ -116,7 +116,7 @@ function getJobs(){
         // High priority containers
         if(grouped_containers[0] != null){
             grouped_containers[0].forEach((container) => {
-                if (!isJobAssigned("fill", container) && container.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
+                if (container.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
                     jobs.push({
                         target:container,
                         task:"fill",
@@ -145,18 +145,16 @@ function getJobs(){
         // 0-tier priority repairs
         if(grouped_repairables[0] != null){
             grouped_repairables[0].forEach((container) => {
-                if (!isJobAssigned("repair", container)){
-                    jobs.push({
-                        target:container,
-                        task:"repair",
-                        requiredParts: [MOVE, CARRY, WORK],
-                        priority: 2
-                    })
-                }
+                jobs.push({
+                    target:container,
+                    task:"repair",
+                    requiredParts: [MOVE, CARRY, WORK],
+                    priority: 2
+                })
             })
         }
 
-        if (!isJobAssigned("upgrade", room.controller) && room.controller.my){
+        if (room.controller.my){
             jobs.push({
                 target:room.controller,
                 task:"upgrade",
@@ -168,35 +166,31 @@ function getJobs(){
         // 1-tier priority repairs
         if(grouped_repairables[1] != null){
             grouped_repairables[1].forEach((container) => {
-                if (!isJobAssigned("repair", container)){
-                    jobs.push({
-                        target:container,
-                        task:"repair",
-                        requiredParts: [MOVE, CARRY, WORK],
-                        priority: 4
-                    })
-                }
+                jobs.push({
+                    target:container,
+                    task:"repair",
+                    requiredParts: [MOVE, CARRY, WORK],
+                    priority: 4
+                })
             })
         }
 
         // 2-tier priority repairs
         if(grouped_repairables[2] != null){
             grouped_repairables[2].forEach((container) => {
-                if (!isJobAssigned("repair", container)){
-                    jobs.push({
-                        target:container,
-                        task:"repair",
-                        requiredParts: [MOVE, CARRY, WORK],
-                        priority: 5
-                    })
-                }
+                jobs.push({
+                    target:container,
+                    task:"repair",
+                    requiredParts: [MOVE, CARRY, WORK],
+                    priority: 5
+                })
             })
         }
 
         // Low priority containers
         if(grouped_containers[1] != null){
             grouped_containers[1].forEach((container) => {
-                if (!isJobAssigned("fill", container) && container.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
+                if (container.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
                     jobs.push({
                         target:container,
                         task:"fill",
@@ -224,14 +218,12 @@ function getJobs(){
         var enemies = room.find(FIND_HOSTILE_CREEPS);
         if (enemies.length > 0) {
             enemies.forEach((enemy) => {
-                if(!isJobAssigned("defend", enemy)){
-                    jobs.push({
-                        target:enemy,
-                        task:"defend",
-                        requiredParts: [MOVE, ATTACK],
-                        priority: 8
-                    });
-                }
+                jobs.push({
+                    target:enemy,
+                    task:"defend",
+                    requiredParts: [MOVE, ATTACK],
+                    priority: 8
+                });
             });
         }
 
