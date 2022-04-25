@@ -355,8 +355,13 @@ function doDefend(creep){
             if(err == ERR_NOT_IN_RANGE){
                 creep.moveTo(target);
             }
+            return;
         }
     }
+    // No enemies if we get here
+    var x = Math.floor(Math.random() * 49) + 1;
+    var y = Math.floor(Math.random() * 49) + 1;
+    creep.moveTo(x, y);
 }
 
 function doAttack(creep){
