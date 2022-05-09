@@ -26,6 +26,10 @@ function jobAssignedCount(task_name, target) {
 
 function groupRepariables(o){
     var ratio_health_remaining = o.hits / o.hitsMax;
+    // If it's not in our room we don't care about it
+    if (!(o.room.controller && o.room.controller.my)) {
+        return 4;
+    }
     if(o.structureType == STRUCTURE_WALL){
         if(o.hits < 10000){
             return 2;
@@ -50,6 +54,10 @@ function groupRepariables(o){
 }
 
 function groupContainers(o){
+    // If it's not in our room we don't care about it
+    if (!(o.room.controller && o.room.controller.my)) {
+        return 4;
+    }
     var grouping = {
         [STRUCTURE_SPAWN]: 0,
         [STRUCTURE_EXTENSION]: 0,
@@ -74,7 +82,13 @@ function sortContainers(o){
 
 function sortRooms(room){
     // Sorts lowest level room first
-    return room.controller.level;
+    if (room.controller) {
+        return room.controller.level;
+    }
+    // A room with no controller is the lowest priority
+    else {
+        return Infinity;
+    }
 }
 
 function getJobs(){
@@ -109,52 +123,105 @@ function getJobs(){
     var grouped_containers = _.groupBy(containers, groupContainers);
     var jobs = []
     var sorted_rooms = _.sortBy(Game.rooms, sortRooms);
+    // High priority containers
+    if(grouped_containers[0] != null){
+        grouped_containers[0].forEach((container) => {
+            if (container.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
+                jobs.push({
+                    target:container,
+                    task:"fill",
+                    requiredParts: [MOVE, CARRY],
+                    priority: 0
+                })
+            }
+        })
+    }
+
+    var max_workers_per_site = 2
+    construction_sites.forEach((construction_site) => {
+        for (var i = max_workers_per_site; i > 0; i--) {
+            jobs.push({
+                target:construction_site,
+                task:"build",
+                requiredParts: [MOVE, CARRY, WORK],
+                priority: max_workers_per_site - i + 1
+            })
+        }
+    })
+
+    // 0-tier priority repairs
+    if(grouped_repairables[0] != null){
+        grouped_repairables[0].forEach((container) => {
+            jobs.push({
+                target:container,
+                task:"repair",
+                requiredParts: [MOVE, CARRY, WORK],
+                priority: 2
+            })
+        })
+    }
+
+    // 1-tier priority repairs
+    if(grouped_repairables[1] != null && room.controller && room.controller.my){
+        grouped_repairables[1].forEach((container) => {
+            jobs.push({
+                target:container,
+                task:"repair",
+                requiredParts: [MOVE, CARRY, WORK],
+                priority: 4
+            })
+        })
+    }
+
+    // 2-tier priority repairs
+    if(grouped_repairables[2] != null && room.controller && room.controller.my){
+        grouped_repairables[2].forEach((container) => {
+            jobs.push({
+                target:container,
+                task:"repair",
+                requiredParts: [MOVE, CARRY, WORK],
+                priority: 5
+            })
+        })
+    }
+
+    // Low priority containers
+    if(grouped_containers[1] != null && room.controller && room.controller.my){
+        grouped_containers[1].forEach((container) => {
+            if (container.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
+                jobs.push({
+                    target:container,
+                    task:"fill",
+                    requiredParts: [MOVE, CARRY],
+                    priority: 6
+                })
+            }
+        })
+    }
+
+    if (Game.flags["attack"]) {
+        var attackFlag = Game.flags["attack"];
+        jobs.push({
+            target:attackFlag,
+            task:"attack",
+            requiredParts: [MOVE, ATTACK],
+            priority: 9
+        });
+    }
+
+    if (Game.flags["claim"]) {
+        jobs.push({
+            target:Game.flags["claim"],
+            task:"claim",
+            requiredParts: [MOVE, CLAIM],
+            priority: 20
+        })
+    }
 
     for (const room of sorted_rooms){
         room_name = room.name;
 
-        // High priority containers
-        if(grouped_containers[0] != null){
-            grouped_containers[0].forEach((container) => {
-                if (container.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
-                    jobs.push({
-                        target:container,
-                        task:"fill",
-                        requiredParts: [MOVE, CARRY],
-                        priority: 0
-                    })
-                }
-            })
-        }
-
-        var max_workers_per_site = 2
-        construction_sites.forEach((construction_site) => {
-            var screeps_assigned = jobAssignedCount("build", construction_site);
-            var num_jobs_to_be_assigned = Math.max(max_workers_per_site - screeps_assigned, 0);
-
-            for (var i = num_jobs_to_be_assigned; i > 0; i--) {
-                jobs.push({
-                    target:construction_site,
-                    task:"build",
-                    requiredParts: [MOVE, CARRY, WORK],
-                    priority: max_workers_per_site - i + 1
-                })
-            }
-        })
-
-        // 0-tier priority repairs
-        if(grouped_repairables[0] != null){
-            grouped_repairables[0].forEach((container) => {
-                jobs.push({
-                    target:container,
-                    task:"repair",
-                    requiredParts: [MOVE, CARRY, WORK],
-                    priority: 2
-                })
-            })
-        }
-
-        if (room.controller.my){
+        if (room.controller && room.controller.my){
             jobs.push({
                 target:room.controller,
                 task:"upgrade",
@@ -163,48 +230,10 @@ function getJobs(){
             })
         }
 
-        // 1-tier priority repairs
-        if(grouped_repairables[1] != null){
-            grouped_repairables[1].forEach((container) => {
-                jobs.push({
-                    target:container,
-                    task:"repair",
-                    requiredParts: [MOVE, CARRY, WORK],
-                    priority: 4
-                })
-            })
-        }
-
-        // 2-tier priority repairs
-        if(grouped_repairables[2] != null){
-            grouped_repairables[2].forEach((container) => {
-                jobs.push({
-                    target:container,
-                    task:"repair",
-                    requiredParts: [MOVE, CARRY, WORK],
-                    priority: 5
-                })
-            })
-        }
-
-        // Low priority containers
-        if(grouped_containers[1] != null){
-            grouped_containers[1].forEach((container) => {
-                if (container.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
-                    jobs.push({
-                        target:container,
-                        task:"fill",
-                        requiredParts: [MOVE, CARRY],
-                        priority: 6
-                    })
-                }
-            })
-        }
-
         // Add a bunch of upgrades as a default
         // TODO: Make this less hacky
         for(var i = 0; i < 12; i++){
-            if (room.controller.my) {
+            if (room.controller && room.controller.my) {
                 jobs.push({
                     target:room.controller,
                     task:"upgrade",
@@ -216,7 +245,7 @@ function getJobs(){
 
 
         var enemies = room.find(FIND_HOSTILE_CREEPS);
-        if (enemies.length > 0) {
+        if (enemies.length > 0 && room.controller && room.controller.my) {
             enemies.forEach((enemy) => {
                 jobs.push({
                     target:enemy,
@@ -225,15 +254,6 @@ function getJobs(){
                     priority: 8
                 });
             });
-        }
-
-        if (Game.flags["claim"]) {
-            jobs.push({
-                target:Game.flags["claim"],
-                task:"claim",
-                requiredParts: [MOVE, CLAIM],
-                priority: 20
-            })
         }
     }
 
