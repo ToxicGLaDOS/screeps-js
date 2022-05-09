@@ -23,7 +23,7 @@ function getBestCreep(job, valid_creeps){
     // Filter out the creeps that are in a different room than the target
     // as an optimization. This seems like it could cause a creep to loop between
     // rooms.
-    var same_room_creeps = _.filter(valid_creeps, (creep) => creep.room.name == job.target.room.name);
+    var same_room_creeps = _.filter(valid_creeps, (creep) => creep.room == job.target.room);
     if (same_room_creeps.length > 0) {
         valid_creeps = same_room_creeps;
     }
