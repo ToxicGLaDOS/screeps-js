@@ -6,21 +6,25 @@ function finishTask(creep){
 // Returns whether the task was completed
 function doHarvestSubTask(creep){
     var target = Game.getObjectById(creep.memory.subtask.target);
-    if(creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0){
-        // Start from top of function
-        creep.memory.subtask = null;
-        return true;
-    }
-    var err = creep.harvest(target);
-    if(err == ERR_NOT_IN_RANGE){
-        creep.moveTo(target);
-    }
-    else if (err == ERR_NOT_ENOUGH_RESOURCES) {
-        var source = getBestSource(creep)
-        if(source){
-            creep.memory.subtask = {
-                action: "harvest",
-                target: source.id
+    // Could be null if getBestSource returns null because there
+    // are no active sources
+    if (target != null) {
+        if(creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0){
+            // Start from top of function
+            creep.memory.subtask = null;
+            return true;
+        }
+        var err = creep.harvest(target);
+        if(err == ERR_NOT_IN_RANGE){
+            creep.moveTo(target, {ignoreCreeps: false, reusePath: 20});
+        }
+        else if (err == ERR_NOT_ENOUGH_RESOURCES) {
+            var source = getBestSource(creep)
+            if(source){
+                creep.memory.subtask = {
+                    action: "harvest",
+                    target: source.id
+                }
             }
         }
     }
@@ -38,13 +42,19 @@ function getBestSource(creep) {
         // If it's a different room than the one we're in and I own it
         var room = Game.rooms[room_name];
         if (room_name != creep.room.name && room.controller && room.controller.my) {
-            valid_sources = valid_sources.concat(room.find(FIND_SOURCES));
+            valid_sources = valid_sources.concat(room.find(FIND_SOURCES_ACTIVE));
         }
     }
 
-    // Choose one at random
-    var index = Math.floor(Math.random(valid_sources.length))
-    return valid_sources[index];
+    if (valid_sources.length > 0) {
+        // Choose one at random
+        var index = Math.floor(Math.random() * valid_sources.length)
+        return valid_sources[index];
+    }
+    else {
+        return null;
+    }
+
 }
 
 function doBuild(creep){
