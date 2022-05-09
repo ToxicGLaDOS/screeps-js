@@ -13,7 +13,6 @@ function getJobFitness(creep, job){
         return -dist;
     }
     var pathObj = PathFinder.search(creep.pos, job.target);
-    console.log("Doing pathfinding");
     if(pathObj.incomplete){
         return -Infinity
     }
